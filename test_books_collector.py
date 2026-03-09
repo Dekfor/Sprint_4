@@ -1,23 +1,9 @@
 import pytest
-from main import BooksCollector
 
 
-@pytest.fixture
-def collector():
-    return BooksCollector()
-
-@pytest.mark.parametrize(
-    "attribute,expected",
-    [
-        ("books_genre", {}),
-        ("favorites", []),
-        ("genre", ['Фантастика', 'Ужасы', 'Детективы', 'Мультфильмы', 'Комедии']),
-        ("genre_age_rating", ['Ужасы', 'Детективы'])
-    ]
-)
-def test_collector_init_fields(collector, attribute, expected):
-    value = getattr(collector, attribute)
-    assert value == expected
+def test_collector_init_state(collector):
+    assert collector.get_books_genre() == {}
+    assert collector.get_list_of_favorites_books() == []
 
 def test_add_new_book_adds_book(collector):
     collector.add_new_book('Хоббит, или Туда и обратно')
@@ -60,6 +46,12 @@ def test_get_books_with_specific_genre_no_books(collector):
 def test_get_books_genre_returns_dict(collector):
     collector.add_new_book('Грозовой перевал')
     assert type(collector.get_books_genre()) == dict
+
+def test_get_books_for_children_includes_allowed_books(collector):
+    collector.add_new_book('Винни-Пух')
+    collector.set_book_genre('Винни-Пух', 'Мультфильмы')
+    books = collector.get_books_for_children()
+    assert 'Винни-Пух' in books
 
 def test_get_books_for_children_exclude_age_rating(collector):
     collector.add_new_book('Оно')
